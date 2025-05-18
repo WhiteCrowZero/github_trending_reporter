@@ -7,10 +7,11 @@ Date Created: 2025/5/18
 Description : 一些辅助函数
 """
 
+import os
 import time
 import requests
+from datetime import datetime
 from log_utils import init_logger
-import os
 
 module_name = os.path.splitext(os.path.basename(__file__))[0]
 logger = init_logger('utils', module_name)
@@ -61,10 +62,19 @@ def ip_test(proxies):
     return False, None
 
 
+def get_current_date(format_str: str = "%Y-%m-%d") -> str:
+    """生成当前日期的格式化字符串"""
+    return datetime.now().strftime(format_str)
+
+
 if __name__ == '__main__':
-    # 测试：先用代理，再无代理
+    # 测试1
     PROXIES = {
         "http": "http://127.0.0.1:7890",
         "https": "http://127.0.0.1:7890",
     }
     ip_test(PROXIES)
+
+    # 测试2
+    date_str = get_current_date()
+    print(date_str)

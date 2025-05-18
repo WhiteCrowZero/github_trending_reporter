@@ -9,12 +9,18 @@ Description : Add your script's purpose here.
 import os
 from log_utils import init_logger
 from trending_scraper import TrendingScraper
+from history_recorder import HistoryRecorder
+from output_generator import OutputGenerator
 
 module_name = os.path.splitext(os.path.basename(__file__))[0]
 logger = init_logger('github', module_name)
 
-
 scraper = TrendingScraper()
-result = scraper.get_repos(language="python", since="weekly")
-for repo in result:
-    print(repo)
+result = scraper.get_repos(language="python", since="daily")
+
+recorder = HistoryRecorder()
+save_path = recorder.save(result)
+
+generator = OutputGenerator(save_path)
+markdown = generator.generate_markdown()
+generator.send_to_qiwei(markdown)

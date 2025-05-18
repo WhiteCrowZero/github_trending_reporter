@@ -9,6 +9,7 @@ Description : 爬 GitHub Trending 页面的基础信息
 import os
 import time, requests
 from lxml import etree
+from config_set import config
 from log_utils import init_logger
 from models import BaseRepo
 from fake_useragent import UserAgent
@@ -22,10 +23,7 @@ logger = init_logger('github', module_name)
 class TrendingScraper:
     BASE_URL_TEMPLATE = "https://github.com/trending/{language}"
     DEFAULT_PARAMS = {"since": "daily", "spoken_language_code": "zh"}
-    PROXIES = {
-        "http": "http://127.0.0.1:7890",
-        "https": "http://127.0.0.1:7890",
-    }
+    PROXIES = config.proxies
 
     def __init__(self):
         self.session = requests.Session()

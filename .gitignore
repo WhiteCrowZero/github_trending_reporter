@@ -2,4 +2,4 @@
 test.*
 .idea
 __pycache__
-config.ini
+github_config.ini
