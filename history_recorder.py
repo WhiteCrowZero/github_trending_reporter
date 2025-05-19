@@ -7,15 +7,15 @@ Date Created: 2025/5/18
 Description : 记录每天项目数据
 """
 
+import os
 import json
-from dataclasses import asdict
 from typing import List
 from pathlib import Path
-import os
-from log_utils import init_logger
 from models import BaseRepo
-from small_utils import get_current_date
 from config_set import config
+from dataclasses import asdict
+from log_utils import init_logger
+from small_utils import get_current_date
 
 # 模块名用于日志标识
 module_name = os.path.splitext(os.path.basename(__file__))[0]
@@ -29,6 +29,7 @@ class HistoryRecorder:
 
     def __init__(self):
         self.base_dir = config.base_dir
+        self.date_str = get_current_date()
         self.save_path: Path = self._generate_dated_path()
 
         # 确保目录结构存在
@@ -37,14 +38,12 @@ class HistoryRecorder:
 
     def _generate_dated_path(self) -> Path:
         """生成带日期的层级路径"""
-        date_str = get_current_date()  # eg: 2025-05-18
-        year, month, _ = date_str.split('-')
-
+        year, month, _ = self.date_str.split('-')
         return (
                 self.base_dir
                 / year
                 / month
-                / f"{date_str}_data.json"
+                / f"{self.date_str}_data.json"
         )
 
     def save(self, repos: List[BaseRepo]):
@@ -54,7 +53,8 @@ class HistoryRecorder:
             return
 
         today_record = {
-            "date": repos[0].since,  # eg: "weekly"
+            "date": self.date_str,
+            "type": repos[0].since,
             "repos": [asdict(r) for r in repos]
         }
 

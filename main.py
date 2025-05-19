@@ -15,12 +15,21 @@ from output_generator import OutputGenerator
 module_name = os.path.splitext(os.path.basename(__file__))[0]
 logger = init_logger('github', module_name)
 
-scraper = TrendingScraper()
-result = scraper.get_repos(language="python", since="daily")
 
-recorder = HistoryRecorder()
-save_path = recorder.save(result)
+def main(language="python", since="daily"):
+    # 抓取信息
+    scraper = TrendingScraper()
+    result = scraper.get_repos(language, since)
 
-generator = OutputGenerator(save_path)
-markdown = generator.generate_markdown()
-generator.send_to_qiwei(markdown)
+    # 存储信息
+    recorder = HistoryRecorder()
+    save_path = recorder.save(result)
+
+    # 报告信息
+    generator = OutputGenerator(save_path)
+    markdown = generator.generate_markdown()
+    generator.send_to_qiwei(markdown)
+
+
+if __name__ == '__main__':
+    main()

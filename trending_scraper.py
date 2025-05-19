@@ -7,13 +7,15 @@ Date Created: 2025/5/18
 Description : 爬 GitHub Trending 页面的基础信息
 """
 import os
-import time, requests
+import time
+import requests
 from lxml import etree
-from config_set import config
-from log_utils import init_logger
 from models import BaseRepo
-from fake_useragent import UserAgent
+from config_set import config
 from small_utils import ip_test
+from log_utils import init_logger
+from fake_useragent import UserAgent
+from switch_node import ClashManager
 
 module_name = os.path.splitext(os.path.basename(__file__))[0]
 logger = init_logger('github', module_name)
@@ -33,16 +35,27 @@ class TrendingScraper:
             "Accept": "text/html,application/xhtml+xml"
         })
 
-    def _request(self, language, params) -> str:
-        ip_res, mode = ip_test(self.PROXIES)
-        if not ip_res:
+    def _network_test(self):
+        clash_manager = ClashManager(config.group_name)
+        for i in range(3):
+            ip_res, mode = ip_test(self.PROXIES)
+            if not ip_res:
+                logger.warning(f'网络测试失败，更换代理进行第 {i+1} 测试')
+                clash_manager.change_random_node()
+            else:
+                if mode == 'DIRECT':
+                    proxies = None
+                else:
+                    proxies = self.PROXIES
+                return proxies
+        else:
             logger.error(f'网络测试失败，停止请求')
             return ''
-        else:
-            if mode == 'DIRECT':
-                proxies = None
-            else:
-                proxies = self.PROXIES
+
+    def _request(self, language, params) -> str:
+        proxies = self._network_test()
+        if proxies == '':
+            return ""
 
         url = self.BASE_URL_TEMPLATE.format(language=language)
         for i in range(3):

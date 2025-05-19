@@ -24,9 +24,9 @@ class OutputGenerator:
     从历史记录文件中读取最新记录，生成 Markdown 报告并推送至企业微信。
     """
     MSG_TEMPLATE = """\
-    ## GitHub 趋势仓库报告（{date}）
+    ## GitHub 趋势仓库报告（{date} {type}）
 
-    {rows}
+{rows}
     """
 
     def __init__(self, history_path):
@@ -46,14 +46,12 @@ class OutputGenerator:
         """
         只保留：星星数、链接、描述，按有序列表输出前 10 条
         """
-
-
         lines = []
         for idx, r in enumerate(repos[:10], 1):
             desc = r.get('desc', '').strip()
             if not desc:
                 desc = "暂无描述"
-            desc = desc[:30]
+            desc = desc[:100]
 
             lines.append(
                 f"{idx}. [{r['owner']}/{r['repo']}]({r['url']})  \n"
@@ -62,12 +60,12 @@ class OutputGenerator:
             )
         return "\n".join(lines)
 
-
     def generate_markdown(self) -> str:
         latest = self._load_latest()
         date = latest.get('date', '未知日期')
+        _type = latest.get('type', '未知模式')
         rows = self._format_rows(latest.get('repos', []))
-        return self.MSG_TEMPLATE.format(date=date, rows=rows)
+        return self.MSG_TEMPLATE.format(date=date, type=_type, rows=rows)
 
     def send_to_qiwei(self, markdown: str):
         try:
@@ -89,7 +87,7 @@ class OutputGenerator:
 
 
 if __name__ == '__main__':
-    history_path = r"D:\tmp\github_data\2025\05\2025-05-18_data.json"
+    history_path = r"D:\ComputerScience\Python\temp\github_trending\github_trend_data\2025\05\2025-05-19_data.json"
     generator = OutputGenerator(history_path)
     markdown = generator.generate_markdown()
     print(markdown)

@@ -31,6 +31,7 @@ class Config:
             "http": parser.get('proxy', 'http', fallback=''),
             "https": parser.get('proxy', 'https', fallback=''),
         }
+        self.group_name = parser.get('proxy', 'group_name', fallback='两元店')
 
         # 存储路径
         self.base_dir = Path(parser.get('path', 'base_dir', fallback='/tmp/github_data'))
